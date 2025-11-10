@@ -21,8 +21,8 @@ RUN pip install --no-cache-dir scrapy scrapy-playwright psycopg2-binary blis==0.
 # playwright install doit être après pip
 RUN playwright install firefox
 
-COPY start.sh /airflow/start.sh
-RUN chmod +x /airflow/start.sh
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
 
 
 WORKDIR /airflow
