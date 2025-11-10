@@ -1,18 +1,18 @@
 version: "3.9"
 
 services:
-  # --- Airflow Webserver ---
   airflow-webserver:
     build:
       context: .
-      dockerfile: Dockerfile.airflow
+      dockerfile: Dockerfile
     container_name: airflow_webserver
     environment:
       AIRFLOW__CORE__EXECUTOR: SequentialExecutor
       AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
       AIRFLOW__API__AUTH_BACKEND: 'airflow.api.auth.backend.basic_auth'
       AIRFLOW__CORE__FERNET_KEY: 'ezN0VbZaIlcTc0WWOy6lA0PAOTRC4n5gFrU-COPFWPI='
-      DATABASE_URL: ${DATABASE_URL}
+      DATABASE_URL: sqlite:////opt/airflow/airflow.db
+      PORT: 8080
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/logs:/opt/airflow/logs
@@ -20,28 +20,7 @@ services:
       - ./Emploi_senegal:/opt/scrapy_project
     ports:
       - "8080:8080"
-    command: webserver
-    networks:
-      - emploi_network
-
-  # --- Airflow Scheduler ---
-  airflow-scheduler:
-    build:
-      context: .
-      dockerfile: Dockerfile.airflow
-    container_name: airflow_scheduler
-    environment:
-      AIRFLOW__CORE__EXECUTOR: SequentialExecutor
-      AIRFLOW__CORE__FERNET_KEY: 'ezN0VbZaIlcTc0WWOy6lA0PAOTRC4n5gFrU-COPFWPI='
-      DATABASE_URL: ${DATABASE_URL}
-    volumes:
-      - ./airflow/dags:/opt/airflow/dags
-      - ./airflow/logs:/opt/airflow/logs
-      - ./airflow/config:/opt/airflow/config
-      - ./Emploi_senegal:/opt/scrapy_project
-    depends_on:
-      - airflow-webserver
-    command: scheduler
+    command: bash start.sh
     networks:
       - emploi_network
 

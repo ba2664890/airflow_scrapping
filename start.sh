@@ -1,6 +1,9 @@
 #!/bin/bash
-# Initialiser la base Airflow (SQLite par défaut pour dev)
-airflow db migrate
+
+# Initialiser DB
+airflow db init
+
+# Créer l'utilisateur admin si pas existant
 airflow users create \
     --username admin \
     --firstname Admin \
@@ -8,10 +11,10 @@ airflow users create \
     --role Admin \
     --email admin@example.com \
     --password admin \
-    || true  # ignore si l'utilisateur existe
+    || true
 
 # Lancer scheduler en arrière-plan
 airflow scheduler &
 
-# Lancer webserver (Railway expose par défaut le PORT)
-airflow webserver --port $PORT
+# Lancer webserver
+exec airflow webserver --port ${PORT:-8080}

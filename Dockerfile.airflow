@@ -1,17 +1,24 @@
-FROM apache/airflow:2.7.0-python3.10
+FROM python:3.11-slim
+
+# Défaut pour Airflow
+ENV AIRFLOW_HOME=/opt/airflow
+WORKDIR $AIRFLOW_HOME
 
 USER root
 
-# Dépendances système pour Playwright + PostgreSQL
+# Dépendances système pour Airflow, Playwright, PostgreSQL
 RUN apt-get update && apt-get install -y \
-    libpq-dev gcc curl wget gnupg \
+    libpq-dev gcc curl wget gnupg build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Python packages
-RUN pip install --no-cache-dir scrapy scrapy-playwright psycopg2-binary
+# Installer pip à jour
+RUN python -m pip install --upgrade pip setuptools wheel
+
+# Installer Airflow (version 2.7.0) et packages Python
+RUN pip install "apache-airflow==2.7.0" \
+    scrapy scrapy-playwright psycopg2-binary
 
 # Installer Playwright Firefox
 RUN playwright install firefox
 
 USER airflow
-WORKDIR /opt/airflow
