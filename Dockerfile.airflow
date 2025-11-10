@@ -23,4 +23,8 @@ RUN playwright install firefox
 
 
 
+USER airflow
 WORKDIR /airflow
+
+# START DEFAULT CMD (Railway needs this)
+CMD ["airflow", "webserver"]
