@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+
+# Airflow
+airflow/logs/
+airflow/airflow.db
+airflow/config/airflow.cfg
+airflow/config/fernet_key.txt
+
+# Scrapy
+scrapy_project/*.db
+scrapy_project/logs/
+scrapy_project/.scrapy/
+
+# OS
+.DS_Store
+.env

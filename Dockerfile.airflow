@@ -1,0 +1,17 @@
+FROM apache/airflow:2.7.0-python3.10
+
+USER root
+
+# Dépendances système pour Playwright + PostgreSQL
+RUN apt-get update && apt-get install -y \
+    libpq-dev gcc curl wget gnupg \
+    && rm -rf /var/lib/apt/lists/*
+
+# Python packages
+RUN pip install --no-cache-dir scrapy scrapy-playwright psycopg2-binary
+
+# Installer Playwright Firefox
+RUN playwright install firefox
+
+USER airflow
+WORKDIR /opt/airflow
