@@ -6,7 +6,8 @@
   "steps": {
     "install": [
       "python -m venv /app/.venv",
-      "pip install -r requirements.txt"
+      "/app/.venv/bin/pip install --upgrade pip",
+      "/app/.venv/bin/pip install -r requirements.txt"
     ],
     "deploy": [
       "bash start.sh"
