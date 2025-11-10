@@ -1,14 +1,7 @@
 FROM apache/airflow:2.7.0-python3.10
 
-# Défaut pour Airflow
-ENV AIRFLOW_HOME=/airflow
-WORKDIR $AIRFLOW_HOME
-
-
-
 USER root
 
-# Dépendances système
 RUN apt-get update && apt-get install -y \
     build-essential \
     python3-dev \
@@ -19,27 +12,13 @@ RUN apt-get update && apt-get install -y \
     gnupg \
     && rm -rf /var/lib/apt/lists/*
 
-# Python packages
+# on repasse sur airflow user POUR pip
+USER airflow
+
+# install des dep python
 RUN pip install --no-cache-dir scrapy scrapy-playwright psycopg2-binary blis==0.7.9
 
-# Installer Playwright Firefox
+# playwright install doit être après pip
 RUN playwright install firefox
 
-USER airflow
 WORKDIR /opt/airflow
-
-
-# Installer pip à jour
-RUN python -m pip install --upgrade pip setuptools wheel
-
-RUN pip install --no-cache-dir blis==0.7.9
-
-
-# Installer Airflow (version 2.7.0) et packages Python
-RUN pip install "apache-airflow==2.7.0" \
-    scrapy scrapy-playwright psycopg2-binary
-
-# Installer Playwright Firefox
-RUN playwright install firefox
-
-USER airflow
