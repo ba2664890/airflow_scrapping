@@ -1,5 +1,5 @@
 # Core Airflow
-apache-airflow==2.12.3
+apache-airflow
 apache-airflow-providers-postgres==6.3.0
 apache-airflow-providers-http==4.13.0
 apache-airflow-providers-smtp==1.8.0
