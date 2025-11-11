@@ -1,7 +1,10 @@
+# Base image officielle Apache Airflow avec Python 3.10
 FROM apache/airflow:2.7.0-python3.10
 
+# Passer en root pour installer les dépendances système
 USER root
 
+# Installer dépendances système nécessaires pour psycopg2, Playwright et Scrapy
 RUN apt-get update && apt-get install -y \
     build-essential \
     python3-dev \
@@ -10,21 +13,40 @@ RUN apt-get update && apt-get install -y \
     curl \
     wget \
     gnupg \
+    libnss3 \
+    libatk1.0-0 \
+    libatk-bridge2.0-0 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxrandr2 \
+    libgbm1 \
+    libasound2 \
+    libpangocairo-1.0-0 \
+    libxkbcommon0 \
+    libgtk-3-0 \
+    libpango-1.0-0 \
+    libcairo2 \
+    libx11-xcb1 \
     && rm -rf /var/lib/apt/lists/*
 
-# on repasse sur airflow user POUR pip
+# Revenir sur l'utilisateur airflow avant pip install
 USER airflow
 
-# install des dep python
-RUN pip install --no-cache-dir scrapy scrapy-playwright psycopg2-binary blis==0.7.9
+# Installer les dépendances Python (sans cache pour limiter la taille)
+RUN pip install --no-cache-dir \
+    scrapy \
+    scrapy-playwright \
+    psycopg2-binary \
+    blis==0.7.9
 
-# playwright install doit être après pip
-RUN playwright install firefox
+# Installer Playwright et le navigateur Firefox
+RUN playwright install --with-deps firefox
 
+# Définir le répertoire de travail
+WORKDIR /opt/airflow
 
+# Copier le code de ton projet
+COPY . /opt/airflow
 
-USER airflow
-WORKDIR /airflow
-
-# START DEFAULT CMD (Railway needs this)
+# Commande par défaut pour Railway
 CMD ["airflow", "webserver"]
