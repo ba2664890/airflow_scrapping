@@ -27,7 +27,7 @@ RUN apt-get update && apt-get install -y \
     libpango-1.0-0 \
     libcairo2 \
     libx11-xcb1 \
-    && rm -rf /var/lib/apt/lists/*
+ && rm -rf /var/lib/apt/lists/*
 
 # Revenir sur l'utilisateur airflow avant pip install
 USER airflow
@@ -39,15 +39,14 @@ RUN pip install --no-cache-dir \
     psycopg2-binary \
     blis==0.7.9
 
-# Installer uniquement chromium headless sans sudo
-RUN npx playwright install --with-deps chromium
-
+# ⚠️ Installer Chromium via Playwright (Python, pas Node)
+RUN python -m playwright install chromium
 
 # Définir le répertoire de travail
 WORKDIR /opt/airflow
 
-# Copier le code de ton projet
+# Copier ton projet
 COPY . /opt/airflow
 
-# Commande par défaut pour Railway
+# Commande par défaut pour Railway (modifie selon ton service)
 CMD ["airflow", "webserver"]
