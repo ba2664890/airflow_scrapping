@@ -84,7 +84,7 @@ def consolidate_tables(**context):
     """
     logging.info("Début de la consolidation des tables")
     
-    postgres_hook = PostgresHook(postgres_conn_id='postgres_default')
+    postgres_hook = PostgresHook(postgres_conn_id='neon_conn')
     
     # Requête de consolidation
     consolidate_query = """
@@ -205,7 +205,8 @@ def get_consolidation_stats(**context):
     """
     Récupère les statistiques de consolidation pour les notifications.
     """
-    postgres_hook = PostgresHook(postgres_conn_id='postgres_default')
+    postgres_hook = PostgresHook(postgres_conn_id='neon_conn')
+
     
     stats_query = """
     SELECT 

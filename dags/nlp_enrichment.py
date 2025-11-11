@@ -51,7 +51,7 @@ def get_jobs_to_process(**context):
     """
     logging.info("Récupération des offres à enrichir")
     
-    postgres_hook = PostgresHook(postgres_conn_id='postgres_default')
+    postgres_hook = PostgresHook(postgres_conn_id='neon_conn')
     
     query = """
     SELECT 
@@ -149,7 +149,7 @@ def save_enriched_data(**context):
         logging.info("Aucune donnée à sauvegarder")
         return
     
-    postgres_hook = PostgresHook(postgres_conn_id='postgres_default')
+    postgres_hook = PostgresHook(postgres_conn_id='neon_conn')
     
     insert_query = """
     INSERT INTO offres_emploi_enrichies (
@@ -205,7 +205,8 @@ def update_job_statistics(**context):
     """
     logging.info("Mise à jour des statistiques")
     
-    postgres_hook = PostgresHook(postgres_conn_id='postgres_default')
+    postgres_hook = PostgresHook(postgres_conn_id='neon_conn')
+
     
     stats_queries = [
         """

@@ -40,7 +40,7 @@ dag = DAG(
 # -------------------------
 def generate_daily_report(**context):
     logging.info("Génération du rapport quotidien")
-    postgres_hook = PostgresHook(conn_id='postgres_default')
+    postgres_hook = PostgresHook(postgres_conn_id='neon_conn')
 
     stats_queries = {
         'total_offers': "SELECT COUNT(*) FROM offres_emploi_brutes",
