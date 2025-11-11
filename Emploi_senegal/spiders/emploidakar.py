@@ -5,6 +5,7 @@ from scrapy_playwright.page import PageMethod
 from scrapy.loader import ItemLoader
 from Emploi_senegal.items import emploidakar
 import hashlib
+import json
 
 class EmploiDakarSpider(Spider):
     name = "emploidakar"
@@ -30,25 +31,28 @@ class EmploiDakarSpider(Spider):
             "https": "scrapy_playwright.handler.ScrapyPlaywrightDownloadHandler",
         },
         "PLAYWRIGHT_BROWSER_TYPE": "chromium",
-        "PLAYWRIGHT_LAUNCH_OPTIONS": {"headless": True, "timeout": 30_000},
+        "PLAYWRIGHT_LAUNCH_OPTIONS": {"headless": True, "timeout": 30000},
         "ITEM_PIPELINES": {
             "Emploi_senegal.pipelines.DuplicatesPipeline": 100,
             "Emploi_senegal.pipelines.SQLAlchemyPipeline": 400,
         }
     }
 
-    
-
-    def start_requests(self):
+    async def start(self):
+        """Point d’entrée principal du spider avec Playwright."""
         for url in self.start_urls:
-            yield scrapy.Request(
+            yield Request(
                 url,
                 meta={
                     "playwright": True,
                     "playwright_page_methods": [
-                        PageMethod("wait_for_selector", "ul.job_listings li.job_listing", timeout=10_000)
+                        PageMethod(
+                            "wait_for_selector",
+                            "ul.job_listings li.job_listing",
+                            timeout=30000,
+                        )
                     ],
-                    "playwright_navigate_timeout": 15_000,
+                    "playwright_navigate_timeout": 30000,
                     "playwright_page_goto_kwargs": {"wait_until": "domcontentloaded"},
                 },
                 callback=self.parse,
@@ -59,21 +63,23 @@ class EmploiDakarSpider(Spider):
         self.logger.warning("LISTING TIMEOUT/ERROR : %s", failure.request.url)
 
     def parse(self, response):
-        # 1) cartes page 1
+        # 1) Carte de la première page
         yield from self._cards(response)
 
-        # 2) vraie pagination WP Job Manager
-        for p in range(2, 18):          # 17 pages vues dans la pagination
+        # 2) Pagination WP Job Manager (pages 2 à 17)
+        for p in range(2, 18):
             ajax_url = (
                 f"https://www.emploidakar.com/jm-ajax/get_listings/"
                 f"?page={p}&per_page=15&orderby=featured&order=DESC"
             )
             self.logger.info("AJAX URL = %s", ajax_url)
-            yield scrapy.Request(
+            yield Request(
                 ajax_url,
                 callback=self.parse_ajax,
-                headers={"X-Requested-With": "XMLHttpRequest",
-                        "Referer": "https://www.emploidakar.com/offres-demploi-au-senegal/"},
+                headers={
+                    "X-Requested-With": "XMLHttpRequest",
+                    "Referer": "https://www.emploidakar.com/offres-demploi-au-senegal/",
+                },
                 meta={"handle_httpstatus_list": [404, 500]},
             )
 
@@ -81,36 +87,43 @@ class EmploiDakarSpider(Spider):
         if response.status != 200:
             self.logger.warning("AJAX HTTP %s → %s", response.status, response.url)
             return
-        # WP Job Manager renvoie un JSON { html: "..."  }
-        data = response.json()
+        try:
+            data = response.json()
+        except json.JSONDecodeError:
+            self.logger.warning("AJAX JSON error → %s", response.url)
+            return
+
         html_fragment = data.get("html", "")
         if not html_fragment.strip():
             return
         selector = scrapy.Selector(text=html_fragment, type="html")
-        yield from self._cards(selector)  
+        yield from self._cards(selector)
 
     def _cards(self, selector):
         """Extrait les liens détail depuis n’importe quel fragment."""
         for li in selector.css("li.job_listing"):
             href = li.css("a::attr(href)").get()
             if href:
-                yield scrapy.Request(
-                    href.strip(),          # enlève les éventuels espaces
+                yield Request(
+                    href.strip(),
                     callback=self.parse_detail,
                     meta={
                         "playwright": True,
                         "playwright_page_methods": [
-                            PageMethod("wait_for_selector", "div.job_description", timeout=10_000)
+                            PageMethod(
+                                "wait_for_selector",
+                                "div.job_description",
+                                timeout=30000,
+                            )
                         ],
-                        "playwright_navigate_timeout": 15_000,
-                        "playwright_page_goto_kwargs": {"wait_until": "domcontentloaded"},
+                        "playwright_navigate_timeout": 30000,
+                        "playwright_page_goto_kwargs": {"wait_until": "networkidle"},
                     },
                     errback=self.err_detail,
                 )
 
     def err_detail(self, failure):
         self.logger.warning("Détail timeout/erreur : %s", failure.request.url)
-
 
     def parse_detail(self, response):
         loader = ItemLoader(item=emploidakar(), response=response)
