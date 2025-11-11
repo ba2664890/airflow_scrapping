@@ -170,7 +170,7 @@ class SQLAlchemyPipeline:
     def __init__(self):
         # Met à jour ton URI PostgreSQL avec user/password corrects
         self.engine = create_engine(
-            "postgresql+psycopg2://Cardan:Fatimata05?@localhost:5432/scrapy_immo",
+            "postgresql://neondb_owner:npg_dMZCO35gNoeP@ep-long-resonance-a4y4jpe4-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require",
             pool_pre_ping=True
         )
         Base.metadata.create_all(self.engine)
@@ -244,7 +244,7 @@ class senjobPipeline():
     def __init__(self):
         # Met à jour ton URI PostgreSQL avec user/password corrects
         self.engine = create_engine(
-            "postgresql+psycopg2://Cardan:Fatimata05?@localhost:5432/scrapy_immo",
+            "postgresql://neondb_owner:npg_dMZCO35gNoeP@ep-long-resonance-a4y4jpe4-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require",
             pool_pre_ping=True
         )
         Base.metadata.create_all(self.engine)
@@ -304,7 +304,7 @@ from sqlalchemy import create_engine
 
 class ExpatDakarPipeline:
     def __init__(self):
-        self.engine = create_engine("postgresql+psycopg2://Cardan:Fatimata05?@localhost:5432/scrapy_immo", pool_pre_ping=True)
+        self.engine = create_engine("postgresql://neondb_owner:npg_dMZCO35gNoeP@ep-long-resonance-a4y4jpe4-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require", pool_pre_ping=True)
         self.Session = sessionmaker(bind=self.engine)
         Base.metadata.create_all(self.engine)
     def open_spider(self, spider):

@@ -36,12 +36,15 @@ custom_settings = {
 # --- configuration par pipeline ---------------------------------------------
 
 
+# --- configuration par pipeline ---------------------------------------------
+
 DATABASE = {
-    "database": "scrapy_immo",
-    "user":     "Cardan",
-    "password": "Fatimata05?",
-    "host":     "localhost",
+    "database": "neondb",
+    "user":     "neondb_owner",
+    "password": "npg_dMZCO35gNoeP",
+    "host":     "ep-long-resonance-a4y4jpe4-pooler.us-east-1.aws.neon.tech",
     "port":     5432,
+    "sslmode":  "require"
 }
 
 # Désactivez les logs trop verbeux
