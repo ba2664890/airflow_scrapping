@@ -39,8 +39,9 @@ RUN pip install --no-cache-dir \
     psycopg2-binary \
     blis==0.7.9
 
-# Installer Playwright et le navigateur Firefox
-RUN playwright install --with-deps firefox
+# Installer uniquement chromium headless sans sudo
+RUN npx playwright install --with-deps chromium
+
 
 # Définir le répertoire de travail
 WORKDIR /opt/airflow
