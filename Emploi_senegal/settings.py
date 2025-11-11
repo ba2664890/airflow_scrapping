@@ -25,7 +25,7 @@ custom_settings = {
         'http': 'scrapy_playwright.handler.ScrapyPlaywrightDownloadHandler',
         'https': 'scrapy_playwright.handler.ScrapyPlaywrightDownloadHandler',
     },
-    "PLAYWRIGHT_BROWSER_TYPE": "firefox",
+    "PLAYWRIGHT_BROWSER_TYPE": "chromium",
     "PLAYWRIGHT_LAUNCH_OPTIONS": {
         "headless": True,
     },
