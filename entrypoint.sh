@@ -2,7 +2,7 @@
 set -e
 
 echo ">>> Running Airflow DB upgrade"
-airflow db upgrade
+airflow db init
 
 echo ">>> Creating admin user if not exists"
 airflow users create \
