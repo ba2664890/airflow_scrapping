@@ -43,12 +43,14 @@ RUN pip install --no-cache-dir \
 RUN python -m playwright install chromium
 
 # Définir le répertoire de travail
-WORKDIR /opt/airflow
+WORKDIR /airflow
 
 # Copier ton projet
-COPY . /opt/airflow
+COPY . /airflow
 
-RUN airflow db migrate
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
 
 
 # Commande par défaut pour Railway (modifie selon ton service)
