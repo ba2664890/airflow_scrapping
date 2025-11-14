@@ -48,9 +48,9 @@ WORKDIR /airflow
 # Copier ton projet
 COPY . /airflow
 
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-ENTRYPOINT ["/entrypoint.sh"]
+COPY entrypoint.sh .
+ENTRYPOINT ["bash", "entrypoint.sh"]
+
 
 
 # Commande par défaut pour Railway (modifie selon ton service)
