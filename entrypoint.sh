@@ -14,4 +14,5 @@ airflow users create \
     --email admin@example.com
 
 echo ">>> Starting Airflow Webserver"
-exec airflow webserver
+export WEB_SERVER_MASTER_TIMEOUT=300
+airflow webserver --port 8080 --workers 1
