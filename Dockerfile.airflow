@@ -48,5 +48,8 @@ WORKDIR /opt/airflow
 # Copier ton projet
 COPY . /opt/airflow
 
+RUN airflow db migrate
+
+
 # Commande par défaut pour Railway (modifie selon ton service)
 CMD ["airflow", "webserver"]
