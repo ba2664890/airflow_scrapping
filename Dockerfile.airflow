@@ -41,6 +41,7 @@ RUN pip install --no-cache-dir \
 RUN python -m playwright install chromium
 
 # ------ Workspace ------
+ENV AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=${DATABASE_URL}
 WORKDIR /opt/airflow
 
 # ------ Copie des fichiers projet ------
