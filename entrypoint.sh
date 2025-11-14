@@ -6,12 +6,12 @@ airflow db upgrade
 
 echo ">>> Creating admin user if not exists"
 airflow users create \
-    --username admin1 \
+    --username admin \
     --firstname Admin \
     --lastname User \
-    --role Admin1 \
+    --role Admin \
     --password admin \
-    --email admin@example.com || true
+    --email admin@example.com
 
 echo ">>> Starting Airflow Webserver"
 exec airflow webserver
