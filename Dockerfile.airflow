@@ -37,18 +37,20 @@ RUN pip install --no-cache-dir \
     psycopg2-binary \
     blis==0.7.9
 
-# ------ Navigateur Chromium pour Playwright ------
+# ------ Playwright ------
 RUN python -m playwright install chromium
 
-# ------ Workspace ------
-ENV AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=${DATABASE_URL}
+# ------ Copier projet ------
 WORKDIR /opt/airflow
-
-# ------ Copie des fichiers projet ------
 COPY --chown=airflow:airflow . .
 
-# ------ Script de démarrage ------
-COPY --chown=airflow:airflow entrypoint.sh .
-RUN chmod +x entrypoint.sh
+# ------ Railway injecte $PORT et $DATABASE_URL ------
+ENV AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=$DATABASE_URL
+ENV AIRFLOW__CORE__EXECUTOR=SequentialExecutor
+ENV AIRFLOW__API__AUTH_BACKEND=airflow.api.auth.backend.basic_auth
 
-ENTRYPOINT ["bash", "entrypoint.sh"]
+# ------ Script de démarrage allégé ------
+COPY --chown=airflow:airflow entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
