@@ -1,11 +1,9 @@
-# Base image officielle Apache Airflow avec Python 3.10
+# ------ Base officielle ------
 FROM apache/airflow:2.7.0-python3.10
 
-# Passer en root pour installer les dépendances système
+# ------ Root : deps système ------
 USER root
-
-# Installer dépendances système nécessaires pour psycopg2, Playwright et Scrapy
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     python3-dev \
     libpq-dev \
@@ -29,29 +27,27 @@ RUN apt-get update && apt-get install -y \
     libx11-xcb1 \
  && rm -rf /var/lib/apt/lists/*
 
-# Revenir sur l'utilisateur airflow avant pip install
+# ------ Utilisateur airflow ------
 USER airflow
 
-# Installer les dépendances Python (sans cache pour limiter la taille)
+# ------ Libs Python ------
 RUN pip install --no-cache-dir \
     scrapy \
     scrapy-playwright \
     psycopg2-binary \
     blis==0.7.9
 
-# ⚠️ Installer Chromium via Playwright (Python, pas Node)
+# ------ Navigateur Chromium pour Playwright ------
 RUN python -m playwright install chromium
 
-# Définir le répertoire de travail
-WORKDIR /airflow
+# ------ Workspace ------
+WORKDIR /opt/airflow
 
-# Copier ton projet
-COPY . /airflow
+# ------ Copie des fichiers projet ------
+COPY --chown=airflow:airflow . .
 
-COPY entrypoint.sh .
+# ------ Script de démarrage ------
+COPY --chown=airflow:airflow entrypoint.sh .
+RUN chmod +x entrypoint.sh
+
 ENTRYPOINT ["bash", "entrypoint.sh"]
-
-
-
-# Commande par défaut pour Railway (modifie selon ton service)
-CMD ["airflow", "webserver"]
