@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -e
 
-# Utiliser le binaire airflow global (présent dans l'image officielle)
-AIRFLOW_CMD="airflow"
+# Chemin complet vers le binaire airflow dans l'image officielle
+AIRFLOW_CMD="/opt/airflow/venv/bin/airflow"
 
 echo ">>> Running Airflow DB upgrade"
 $AIRFLOW_CMD db upgrade
