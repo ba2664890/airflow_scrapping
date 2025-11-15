@@ -5,9 +5,11 @@ echo ">>> PATH: $PATH"
 which airflow || true
 airflow version
 
-echo ">>> Running Airflow DB upgrade"
-airflow db migrate
+# --- DATABASE INIT ---
+echo ">>> Running Airflow DB migration (upgrade)"
+airflow db upgrade || airflow db migrate || true
 
+# --- CREATE ADMIN USER ---
 echo ">>> Creating admin user if not exists"
 airflow users create \
     --username admin \
@@ -17,6 +19,10 @@ airflow users create \
     --password admin \
     --email admin@example.com || true
 
-echo ">>> Starting Airflow Webserver"
-export WEB_SERVER_MASTER_TIMEOUT=300
-exec airflow webserver --port 8080 --workers 1
+# --- IMPORTANT FOR RAILWAY: disable scheduler in web dyno ---
+echo ">>> Starting Airflow Webserver ONLY (Railway Dyno)"
+export AIRFLOW__CORE__LOAD_EXAMPLES=False
+export AIRFLOW__WEBSERVER__WORKERS=1
+export AIRFLOW__WEBSERVER__WEB_SERVER_MASTER_TIMEOUT=300
+
+exec airflow webserver --port 8080
