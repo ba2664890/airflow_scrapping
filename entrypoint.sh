@@ -25,4 +25,5 @@ export AIRFLOW__CORE__LOAD_EXAMPLES=False
 export AIRFLOW__WEBSERVER__WORKERS=1
 export AIRFLOW__WEBSERVER__WEB_SERVER_MASTER_TIMEOUT=300
 
-exec airflow webserver --port 8080
+echo ">>> Starting Airflow Webserver in DEBUG MODE (no gunicorn, stable for Railway)"
+exec airflow webserver --port 8080 --debug
