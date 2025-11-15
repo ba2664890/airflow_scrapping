@@ -6,7 +6,7 @@ which airflow || true
 airflow version
 
 echo ">>> Running Airflow DB upgrade"
-airflow db upgrade
+airflow db migrate
 
 echo ">>> Creating admin user if not exists"
 airflow users create \
