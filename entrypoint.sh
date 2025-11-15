@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 set -e
 
+AIRFLOW_BIN="/usr/local/bin/airflow"
+
 echo ">>> Running Airflow DB upgrade"
-airflow db upgrade
+$AIRFLOW_BIN db upgrade
 
 echo ">>> Creating admin user if not exists"
-airflow users create \
+$AIRFLOW_BIN users create \
     --username admin \
     --firstname Admin \
     --lastname User \
@@ -15,4 +17,4 @@ airflow users create \
 
 echo ">>> Starting Airflow Webserver"
 export WEB_SERVER_MASTER_TIMEOUT=300
-exec airflow webserver --port 8080 --workers 1
+exec $AIRFLOW_BIN webserver --port 8080 --workers 1
