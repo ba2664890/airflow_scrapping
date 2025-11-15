@@ -32,7 +32,6 @@ USER airflow
 
 # Installer les dépendances Python et Airflow providers
 RUN pip install --no-cache-dir \
-    apache-airflow-providers-standard \
     spacy \
     scrapy \
     scrapy-playwright \
