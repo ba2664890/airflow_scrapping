@@ -30,18 +30,21 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # ------ Utilisateur airflow ------
 USER airflow
 
-# ------ Libs Python ------
+# Installer les dépendances Python et Airflow providers
 RUN pip install --no-cache-dir \
+    apache-airflow-providers-standard \
+    spacy \
     scrapy \
     scrapy-playwright \
     psycopg2-binary \
     blis==0.7.9
 
+# Télécharger le modèle spacy
+RUN python -m spacy download fr_core_news_sm
+
 # ------ Playwright ------
 RUN python -m playwright install chromium
 
-# Si tu as besoin de modèles spacy, par exemple fr_core_news_sm
-RUN python -m spacy download fr_core_news_sm
 
 # ------ Copier projet ------
 WORKDIR /opt/airflow
