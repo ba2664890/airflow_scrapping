@@ -40,6 +40,9 @@ RUN pip install --no-cache-dir \
 # ------ Playwright ------
 RUN python -m playwright install chromium
 
+# Si tu as besoin de modèles spacy, par exemple fr_core_news_sm
+RUN python -m spacy download fr_core_news_sm
+
 # ------ Copier projet ------
 WORKDIR /opt/airflow
 COPY --chown=airflow:airflow . .
