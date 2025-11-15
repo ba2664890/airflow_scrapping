@@ -10,6 +10,10 @@ airflow/logs/
 airflow/airflow.db
 airflow/config/airflow.cfg
 airflow/config/fernet_key.txt
+
+# Ignore alternative locations
+logs/
+*.db
 airflow.cfg
 # Scrapy
 scrapy_project/*.db
