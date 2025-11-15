@@ -44,37 +44,46 @@ import os
 import subprocess
 import logging
 
+import os
+import subprocess
+import logging
+
 def run_scrapy_spider(spider_name, **context):
     """
-    Exécute un spider Scrapy dans le projet spécifié.
+    Exécute un spider Scrapy dans le projet Scrapy embarqué dans Docker.
     """
     logging.info(f"🚀 Démarrage du spider: {spider_name}")
-    
-    # Dossier de ton projet Scrapy
-    scrapy_project_path = "/home/cardan/Téléchargements/Projet_webscraping_stage_Ansd_2024_2025/v3/airflow"
 
-    # Scrapy binaire du venv actif
-    scrapy_bin = os.path.join(os.getenv("VIRTUAL_ENV", ""), "bin", "scrapy")
+    # 📌 1) CHEMIN DOCKER (pas Ubuntu)
+    scrapy_project_path = "/opt/airflow/scrapy_project"
 
-    # Commande complète
+    # 📌 2) Scrapy est installé via pip → dans /home/airflow/.local/bin
+    scrapy_bin = "/home/airflow/.local/bin/scrapy"
+
+    # Vérification de l'existence du binaire scrapy
+    if not os.path.exists(scrapy_bin):
+        logging.warning("⚠️ scrapy introuvable, on tente 'scrapy' depuis le PATH")
+        scrapy_bin = "scrapy"
+
+    # 📌 3) Commande Scrapy
     cmd = [scrapy_bin, "crawl", spider_name]
 
     try:
         result = subprocess.run(
             cmd,
-            cwd=scrapy_project_path,
+            cwd=scrapy_project_path,   # Très important !
             capture_output=True,
             text=True,
-            check=True,
-            timeout=None
+            check=True
         )
 
         logging.info(f"✅ Spider {spider_name} exécuté avec succès")
         logging.info(result.stdout)
+
         return f"Spider {spider_name} completed successfully"
 
     except subprocess.CalledProcessError as e:
-        logging.error(f"❌ Erreur lors de l'exécution du spider {spider_name}: {e}")
+        logging.error(f"❌ Erreur lors de l'exécution du spider {spider_name}")
         logging.error(e.stderr)
         raise
 
@@ -271,7 +280,7 @@ task_get_stats = PythonOperator(
 
 from pathlib import Path
 
-SQL_FILE = Path('/home/cardan/Téléchargements/Projet_webscraping_stage_Ansd_2024_2025/v3/scripts/init.sql')
+SQL_FILE = Path("/opt/airflow/scripts/init.sql")
 init_sql = SQL_FILE.read_text(encoding='utf-8')
 
 init_ts = SQLExecuteQueryOperator(
