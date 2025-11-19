@@ -1,5 +1,5 @@
 # ------ Base officielle ------
-FROM apache/airflow:2.7.0-python3.10
+FROM apache/airflow:2.7.0-python3.11
 
 # ------ Root : deps système ------
 USER root
