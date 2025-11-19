@@ -2,9 +2,8 @@ services:
   - type: web
     name: airflow-webserver
     runtime: docker
-    repo: https://github.com/<user>/<repo>
-    plan: free
     dockerfilePath: ./Dockerfile
+    plan: free
     envVars:
       - key: AIRFLOW__CORE__EXECUTOR
         value: SequentialExecutor
@@ -16,6 +15,5 @@ services:
         value: ezN0VbZaIlcTc0WWOy6lA0PAOTRC4n5gFrU-COPFWPI=
       - key: PORT
         value: 8080
-    runtime: python
-    envVars:
-      PYTHON_VERSION: 3.10.13
+      - key: PYTHON_VERSION
+        value: 3.11.8
