@@ -32,7 +32,7 @@ USER airflow
 
 # Installer les dépendances Python et Airflow providers
 RUN pip install --no-cache-dir \
-    spacy \
+    spacy --no-build-isolation \
     scrapy \
     scrapy-playwright \
     psycopg2-binary \
