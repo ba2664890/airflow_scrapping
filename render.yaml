@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: airflow-webserver
+    runtime: docker
+    repo: https://github.com/<user>/<repo>
+    plan: free
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: AIRFLOW__CORE__EXECUTOR
+        value: SequentialExecutor
+      - key: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
+        value: 'true'
+      - key: AIRFLOW__API__AUTH_BACKEND
+        value: airflow.api.auth.backend.basic_auth
+      - key: AIRFLOW__CORE__FERNET_KEY
+        value: ezN0VbZaIlcTc0WWOy6lA0PAOTRC4n5gFrU-COPFWPI=
+      - key: PORT
+        value: 8080
