@@ -30,7 +30,7 @@ networks:
 
 environment:
   AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${DATABASE_URL}
-  # pas AIRFLOW__CORE__SQL_ALCHEMY_CONN (déprécié)
+  ## pas AIRFLOW__CORE__SQL_ALCHEMY_CONN (déprécié)
   AIRFLOW__CORE__EXECUTOR: SequentialExecutor
   AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
   AIRFLOW__API__AUTH_BACKEND: 'airflow.api.auth.backend.basic_auth'

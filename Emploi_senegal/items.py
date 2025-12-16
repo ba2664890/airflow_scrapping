@@ -75,3 +75,18 @@ class emploi_expatdakar(scrapy.Item):
     description = scrapy.Field()
     url = scrapy.Field()
     source = scrapy.Field()
+
+
+
+class concoursn_stage(scrapy.Item):
+    id = scrapy.Field()
+    title = scrapy.Field()
+    url = scrapy.Field()
+    source = scrapy.Field()
+    categories = scrapy.Field()
+    tags = scrapy.Field()
+    posted_date_raw = scrapy.Field()
+    posted_date = scrapy.Field()
+    description = scrapy.Field()
+    company = scrapy.Field()
+    scraped_at = scrapy.Field()

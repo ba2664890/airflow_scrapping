@@ -419,3 +419,101 @@ class ExpatDakarPipeline:
             self.session.rollback()
             spider.logger.error(f"Erreur insertion expat-dakar : {e}")
         return item
+
+
+
+# ------------------------------------------------------------------
+# Pipeline JOBS – concoursn.com
+# ------------------------------------------------------------------
+from .model import concoursn_stage
+import json
+from datetime import datetime, timedelta
+import re
+
+class ConcoursnPipeline:
+    def __init__(self):
+        self.engine = create_engine(
+            "postgresql://neondb_owner:npg_dMZCO35gNoeP@ep-long-resonance-a4y4jpe4-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require",
+            pool_pre_ping=True
+        )
+        Base.metadata.create_all(self.engine)
+        self.Session = sessionmaker(bind=self.engine)
+    
+    def open_spider(self, spider):
+        self.session = self.Session()
+    
+    def close_spider(self, spider):
+        self.session.close()
+
+    def parse_relative_date(self, date_str):
+        """Convertit les dates relatives comme 'depuis 18 minutes' en datetime"""
+        if not date_str:
+            return None
+        
+        date_str = date_str.lower().strip()
+        now = datetime.now()
+        
+        # Patterns de date relative
+        patterns = {
+            r'(\d+)\s+(?:minute|min)s?': lambda m: now - timedelta(minutes=int(m.group(1))),
+            r'(\d+)\s+(?:heure|h)s?': lambda m: now - timedelta(hours=int(m.group(1))),
+            r'(\d+)\s+(?:jour|j)s?': lambda m: now - timedelta(days=int(m.group(1))),
+            r'hier': lambda m: now - timedelta(days=1),
+            r'aujourd\'hui': lambda m: now,
+        }
+
+        for pattern, func in patterns.items():
+            match = re.search(pattern, date_str, re.IGNORECASE)
+            if match:
+                return func(match)
+        
+        # Si format date absolu (ex: "08 Décembre 2025")
+        try:
+            return datetime.strptime(date_str, "%d %B %Y")
+        except:
+            pass
+        
+        return None
+
+    def process_item(self, item, spider):
+        # Nettoyage de la description
+        if isinstance(item.get("description"), list):
+            item["description"] = "\n".join([d.strip() for d in item["description"] if d.strip()])
+        
+        # Conversion des listes en JSON strings
+        for field in ["categories", "tags"]:
+            if isinstance(item.get(field), list):
+                item[field] = json.dumps([f.strip() for f in item[field] if f.strip()], ensure_ascii=False)
+
+        # Parsing de la date
+        item["posted_date"] = self.parse_relative_date(item.get("posted_date_raw"))
+        
+        # Génération de l'ID unique basé sur l'URL
+        item["id"] = hashlib.md5(item["url"].encode()).hexdigest()
+        
+        # Date de scraping
+        item["scraped_at"] = datetime.utcnow()
+
+        # Création de l'objet
+        stage = concoursn_stage(
+            id=item["id"],
+            title=item.get("title"),
+            url=item.get("url"),
+            source=item.get("source"),
+            categories=item.get("categories"),
+            tags=item.get("tags"),
+            posted_date=item.get("posted_date"),
+            description=item.get("description"),
+            company=item.get("company"),
+            scraped_at=item.get("scraped_at")
+        )
+
+        try:
+            self.session.merge(stage)
+            self.session.commit()
+            spider.logger.info(f"[CONCOURSNS-INSERT] {item['url']}")
+        except Exception as e:
+            self.session.rollback()
+            spider.logger.error(f"Erreur insertion concoursn : {e}")
+        
+        return item

@@ -1,3 +1,4 @@
+import datetime
 from sqlalchemy import Column, String, Text, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -58,3 +59,16 @@ class emploi_expatdakar(Base):
     url = Column(String, nullable=True)
     source = Column(String, nullable=True)
     
+class concoursn_stage(Base):
+    __tablename__ = "concoursn_stages"
+    
+    id = Column(String, primary_key=True)
+    title = Column(String, nullable=True)
+    url = Column(String, unique=True, nullable=True)
+    source = Column(String, nullable=True)
+    categories = Column(String, nullable=True)  # JSON ou texte séparé par virgules
+    tags = Column(String, nullable=True)        # JSON ou texte séparé par virgules
+    posted_date = Column(DateTime, nullable=True)
+    description = Column(Text, nullable=True)
+    company = Column(String, nullable=True)
+    scraped_at = Column(DateTime, default=datetime.utcnow)
