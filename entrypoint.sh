@@ -7,7 +7,7 @@ airflow version
 
 # --- DATABASE INIT ---
 echo ">>> Running Airflow DB migration (upgrade)"
-airflow db upgrade || airflow db migrate || true
+airflow db migrate 
 
 # --- CREATE ADMIN USER ---
 echo ">>> Creating admin user if not exists"
