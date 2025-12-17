@@ -7,6 +7,7 @@ airflow version
 
 # --- DATABASE INIT ---
 echo ">>> Running Airflow DB migration (upgrade)"
+airflow db reset -y
 airflow db migrate 
 
 # --- CREATE ADMIN USER ---
