@@ -385,7 +385,7 @@ class ExpatDakarPipeline:
                 val = re.sub(r"[\r\n\t]", "", val)  # supprime retours ligne/tab
                 val = re.sub(r"[^\w\sÀ-ÿ&'-]", "", val)  # supprime caractères spéciaux sauf lettres, chiffres, espace, accentués, &, ', -
             return val
-        for field in ["title", "url", "source", "posted_date", "location","region", "description", "type_contrat", "employeur", "secteur", "niveau", "niveau_etude", "experience", "nb_postes"]:
+        for field in ["title", "source", "posted_date", "location","region", "description", "type_contrat", "employeur", "secteur", "niveau", "niveau_etude", "experience", "nb_postes"]:
             if field != "description":  # description peut être long, on ne la nettoie pas trop
                 item[field] = clean(item.get(field))
             else:
