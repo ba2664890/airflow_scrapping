@@ -19,6 +19,7 @@ logs/
 scrapy_project/*.db
 scrapy_project/logs/
 scrapy_project/.scrapy/
+env_airflow/
 
 # OS
 .DS_Store
