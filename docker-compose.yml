@@ -14,13 +14,12 @@ services:
       DATABASE_URL: sqlite:////opt/airflow/airflow.db
       PORT: 8080
     volumes:
-      - ./airflow/dags:/opt/airflow/dags
-      - ./airflow/logs:/opt/airflow/logs
-      - ./airflow/config:/opt/airflow/config
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
       - ./Emploi_senegal:/opt/scrapy_project
     ports:
       - "8080:8080"
-    command: bash start.sh
+    command: bash /start.sh webserver
     networks:
       - emploi_network
 
@@ -36,11 +35,10 @@ services:
       AIRFLOW__CORE__FERNET_KEY: 'ezN0VbZaIlcTc0WWOy6lA0PAOTRC4n5gFrU-COPFWPI='
       DATABASE_URL: sqlite:////opt/airflow/airflow.db
     volumes:
-      - ./airflow/dags:/opt/airflow/dags
-      - ./airflow/logs:/opt/airflow/logs
-      - ./airflow/config:/opt/airflow/config
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
       - ./Emploi_senegal:/opt/scrapy_project
-    command: airflow scheduler
+    command: bash /start.sh scheduler
     depends_on:
       - airflow-webserver
     networks:
@@ -50,13 +48,3 @@ services:
 networks:
   emploi_network:
     driver: bridge
-
-environment:
-  AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: ${DATABASE_URL}
-  ## pas AIRFLOW__CORE__SQL_ALCHEMY_CONN (déprécié)
-  AIRFLOW__CORE__EXECUTOR: SequentialExecutor
-  AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
-  AIRFLOW__API__AUTH_BACKEND: 'airflow.api.auth.backend.basic_auth'
-  AIRFLOW__CORE__FERNET_KEY: 'ezN0VbZaIlcTc0WWOy6lA0PAOTRC4n5gFrU-COPFWPI='
-
-

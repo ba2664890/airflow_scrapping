@@ -20,6 +20,7 @@ aiofiles==23.2.1
 requests==2.32.3
 
 # NLP / Text
+spacy
 blis==0.7.9
 spacy-legacy==3.0.12
 spacy-loggers==1.0.5
