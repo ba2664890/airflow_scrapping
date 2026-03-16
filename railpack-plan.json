@@ -10,7 +10,7 @@
       "/app/.venv/bin/pip install -r requirements.txt"
     ],
     "deploy": [
-      "bash start.sh"
+      "bash start.sh all"
     ]
   }
 }

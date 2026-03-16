@@ -47,10 +47,10 @@ RUN python -m playwright install chromium
 WORKDIR /opt/airflow
 COPY --chown=airflow:airflow . .
 
-# ------ Railway/Render injecte $PORT et $DATABASE_URL ------
-ENV AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=$DATABASE_URL
+# ------ Variables d'environnement par défaut ------
 ENV AIRFLOW__CORE__EXECUTOR=SequentialExecutor
 ENV AIRFLOW__API__AUTH_BACKEND=airflow.api.auth.backend.basic_auth
+ENV AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=true
 
 # ------ Scripts de démarrage ------
 COPY --chown=airflow:airflow entrypoint.sh /entrypoint.sh

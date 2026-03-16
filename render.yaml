@@ -17,3 +17,22 @@ services:
         value: 8080
       - key: PYTHON_VERSION
         value: 3.11
+    command: bash /start.sh webserver
+
+  - type: worker
+    name: airflow-scheduler
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    envVars:
+      - key: AIRFLOW__CORE__EXECUTOR
+        value: SequentialExecutor
+      - key: AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION
+        value: 'true'
+      - key: AIRFLOW__API__AUTH_BACKEND
+        value: airflow.api.auth.backend.basic_auth
+      - key: AIRFLOW__CORE__FERNET_KEY
+        value: ezN0VbZaIlcTc0WWOy6lA0PAOTRC4n5gFrU-COPFWPI=
+      - key: PYTHON_VERSION
+        value: 3.11
+    command: bash /start.sh scheduler
