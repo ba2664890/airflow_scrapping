@@ -54,11 +54,11 @@ def run_scrapy_spider(spider_name, **context):
     """
     logging.info(f"🚀 Démarrage du spider: {spider_name}")
 
-    # 📌 1) CHEMIN DOCKER (pas Ubuntu)
-    scrapy_project_path = "/opt/airflow/scrapy_project"
+    # 📌 1) CHEMIN DOCKER OU LOCAL
+    scrapy_project_path = "/opt/airflow/scrapy_project" if os.path.exists("/opt/airflow/scrapy_project") else "/home/cardan/Documents/airflow_scrapping"
 
-    # 📌 2) Scrapy est installé via pip → dans /home/airflow/.local/bin
-    scrapy_bin = "/home/airflow/.local/bin/scrapy"
+    # 📌 2) Scrapy est installé via pip
+    scrapy_bin = "/home/airflow/.local/bin/scrapy" if os.path.exists("/home/airflow/.local/bin/scrapy") else "/home/cardan/Documents/airflow_scrapping/env_airflow/bin/scrapy"
 
     # Vérification de l'existence du binaire scrapy
     if not os.path.exists(scrapy_bin):
@@ -280,7 +280,8 @@ task_get_stats = PythonOperator(
 
 from pathlib import Path
 
-SQL_FILE = Path("/opt/airflow/scripts/init.sql")
+sql_path = "/opt/airflow/scripts/init.sql" if os.path.exists("/opt/airflow/scripts/init.sql") else "/home/cardan/Documents/airflow_scrapping/scripts/init.sql"
+SQL_FILE = Path(sql_path)
 init_sql = SQL_FILE.read_text(encoding='utf-8')
 
 init_ts = SQLExecuteQueryOperator(

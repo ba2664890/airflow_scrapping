@@ -71,4 +71,4 @@ class concoursn_stage(Base):
     posted_date = Column(DateTime, nullable=True)
     description = Column(Text, nullable=True)
     company = Column(String, nullable=True)
-    scraped_at = Column(DateTime, default=datetime.utcnow)
+    scraped_at = Column(DateTime, default=datetime.datetime.utcnow)
