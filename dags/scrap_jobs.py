@@ -68,24 +68,18 @@ def run_scrapy_spider(spider_name, **context):
     # 📌 3) Commande Scrapy
     cmd = [scrapy_bin, "crawl", spider_name]
 
-    try:
-        result = subprocess.run(
-            cmd,
-            cwd=scrapy_project_path,   # Très important !
-            capture_output=True,
-            text=True,
-            check=True
-        )
+    result = subprocess.run(
+        cmd,
+        cwd=scrapy_project_path,   # Très important !
+        capture_output=True,
+        text=True,
+        check=True
+    )
 
-        logging.info(f"✅ Spider {spider_name} exécuté avec succès")
-        logging.info(result.stdout)
+    logging.info(f"✅ Spider {spider_name} exécuté avec succès")
+    logging.info(result.stdout)
 
-        return f"Spider {spider_name} completed successfully"
-
-    except subprocess.CalledProcessError as e:
-        logging.error(f"❌ Erreur lors de l'exécution du spider {spider_name}")
-        logging.error(e.stderr)
-        raise
+    return f"Spider {spider_name} completed successfully"
 
 def consolidate_tables(**context):
     """
@@ -184,31 +178,81 @@ def consolidate_tables(**context):
 	WHERE id IS NOT NULL
 	  AND id NOT IN (
 	      SELECT original_id FROM offres_emploi_brutes WHERE spider_source = 'emploi_expatDakar'
+	  )
+
+	UNION ALL
+
+	-- 4️⃣ EMPLOI_SENEGAL
+	SELECT 
+	    gen_random_uuid(),
+	    'emploi_senegal' AS spider_source,
+	    id AS original_id,
+	    title,
+	    url,
+	    region AS location,
+	    company_name,
+	    CAST(posted AS DATE) AS posted_date,
+	    source,
+	    description,
+	    contract AS contract_type,
+	    NULL AS salary,
+	    metier_type AS category,
+	    company_sectors AS sector,
+	    experience AS experience_level,
+	    education AS education_level,
+	    1 AS nb_positions,
+	    NULL AS expiration_date
+	FROM jobs_emploi_senegal
+	WHERE id IS NOT NULL
+	  AND id NOT IN (
+	      SELECT original_id FROM offres_emploi_brutes WHERE spider_source = 'emploi_senegal'
+	  )
+
+	UNION ALL
+
+	-- 5️⃣ CONCOURSN_STAGES
+	SELECT 
+	    gen_random_uuid(),
+	    'concoursn_stages' AS spider_source,
+	    id AS original_id,
+	    title,
+	    url,
+	    NULL AS location,
+	    company AS company_name,
+	    CAST(posted_date AS DATE) AS posted_date,
+	    source,
+	    description,
+	    'Stage' AS contract_type,
+	    NULL AS salary,
+	    categories AS category,
+	    NULL AS sector,
+	    NULL AS experience_level,
+	    NULL AS education_level,
+	    1 AS nb_positions,
+	    NULL AS expiration_date
+	FROM concoursn_stages
+	WHERE id IS NOT NULL
+	  AND id NOT IN (
+	      SELECT original_id FROM offres_emploi_brutes WHERE spider_source = 'concoursn_stages'
 	  );
 	"""
 
+    postgres_hook.run(consolidate_query)
+    logging.info("Consolidation des tables terminée avec succès")
     
-    try:
-        postgres_hook.run(consolidate_query)
-        logging.info("Consolidation des tables terminée avec succès")
-        
-        # Comptage des nouveaux enregistrements
-        count_query = """
-        SELECT COUNT(*) as new_records 
-        FROM offres_emploi_brutes 
-        WHERE created_at >= CURRENT_DATE - INTERVAL '1 day'
-        """
-        
-        result = postgres_hook.get_first(count_query)
-        new_records = result[0] if result else 0
-        
-        logging.info(f"{new_records} nouvelles offres d'emploi consolidées")
-        
-        return f"Consolidation completed: {new_records} new records"
-        
-    except Exception as e:
-        logging.error(f"Erreur lors de la consolidation: {e}")
-        raise
+    # Comptage des nouveaux enregistrements
+    count_query = """
+    SELECT COUNT(*) as new_records 
+    FROM offres_emploi_brutes 
+    WHERE created_at >= CURRENT_DATE - INTERVAL '1 day'
+    """
+    
+    result = postgres_hook.get_first(count_query)
+    new_records = result[0] if result else 0
+    
+    logging.info(f"{new_records} nouvelles offres d'emploi consolidées")
+    
+    return f"Consolidation completed: {new_records} new records"
 
 def get_consolidation_stats(**context):
     """
@@ -226,18 +270,13 @@ def get_consolidation_stats(**context):
     GROUP BY spider_source
     """
     
-    try:
-        results = postgres_hook.get_records(stats_query)
-        stats = {row[0]: {'total': row[1], 'new': row[2]} for row in results}
-        
-        # Stocker les stats dans XCom pour les notifications
-        context['task_instance'].xcom_push(key='consolidation_stats', value=stats)
-        
-        return stats
-        
-    except Exception as e:
-        logging.error(f"Erreur lors de la récupération des statistiques: {e}")
-        raise
+    results = postgres_hook.get_records(stats_query)
+    stats = {row[0]: {'total': row[1], 'new': row[2]} for row in results}
+    
+    # Stocker les stats dans XCom pour les notifications
+    context['task_instance'].xcom_push(key='consolidation_stats', value=stats)
+    
+    return stats
 
 # Tâche 1: Exécuter le spider Emploi
 task_scrap_emploi = PythonOperator(
@@ -260,6 +299,22 @@ task_scrap_expat = PythonOperator(
     task_id='scrap_expat_dakar_spider',
     python_callable=run_scrapy_spider,
     op_kwargs={'spider_name': 'emploi_expatdakar'},
+    dag=dag,
+)
+
+# Tâche: Exécuter le spider Emploi Senegal
+task_scrap_emploi_senegal = PythonOperator(
+    task_id='scrap_emploi_senegal_spider',
+    python_callable=run_scrapy_spider,
+    op_kwargs={'spider_name': 'Emploi_senegal'},
+    dag=dag,
+)
+
+# Tâche: Exécuter le spider Concoursn Stages
+task_scrap_concoursn = PythonOperator(
+    task_id='scrap_concoursn_spider',
+    python_callable=run_scrapy_spider,
+    op_kwargs={'spider_name': 'concoursn_stages'},
     dag=dag,
 )
 
@@ -306,4 +361,4 @@ task_cleanup = SQLExecuteQueryOperator(
 
 
 # Définir les dépendances
-task_scrap_emploi >> task_scrap_senjob >> task_scrap_expat >> init_ts >> task_consolidate >> task_get_stats >> task_cleanup
+task_scrap_emploi >> task_scrap_senjob >> task_scrap_expat >> task_scrap_emploi_senegal >> task_scrap_concoursn >> init_ts >> task_consolidate >> task_get_stats >> task_cleanup
